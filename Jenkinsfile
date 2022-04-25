@@ -28,7 +28,7 @@ pipeline {
                      script {
                       def scannerHome = tool 'sonarqube';
                       withSonarQubeEnv('sonarqube') {
-                      ////sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=$APP"
+                      sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=$APP"
                       }
                      }
                  }
@@ -36,8 +36,8 @@ pipeline {
             
             stage('Build') {
                 steps {
-                withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-role', vaultUrl: 'https://nonprod-vault.best-im.com'], vaultSecrets: [[path: '$GIT_BRANCH/cm-ui', secretValues: [[vaultKey: 'REACT_APP_NODE_SERVER'], [vaultKey: 'REACT_APP_CHART_REVIEW'], [vaultKey: 'REACT_APP_KEYCLOAK_URL'], [vaultKey: 'REACT_APP_KEYCLOAK_REALM'], [vaultKey: 'REACT_APP_KEYCLOAK_CLIENT'], [vaultKey: 'REACT_APP_KEYCLOAK_CR_ADMIN_GRP'], [vaultKey: 'REACT_APP_SUPERSET_PORT']]]]) {
-                    sh "echo ${REACT_APP_NODE_SERVER}" // echo 1 setting...
+                ////withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-role', vaultUrl: 'https://nonprod-vault.best-im.com'], vaultSecrets: [[path: '$GIT_BRANCH/cm-ui', secretValues: [[vaultKey: 'REACT_APP_NODE_SERVER'], [vaultKey: 'REACT_APP_CHART_REVIEW'], [vaultKey: 'REACT_APP_KEYCLOAK_URL'], [vaultKey: 'REACT_APP_KEYCLOAK_REALM'], [vaultKey: 'REACT_APP_KEYCLOAK_CLIENT'], [vaultKey: 'REACT_APP_KEYCLOAK_CR_ADMIN_GRP'], [vaultKey: 'REACT_APP_SUPERSET_PORT']]]]) {
+                    //sh "echo ${REACT_APP_NODE_SERVER}" // echo 1 setting...
                 }
 
                 /*
