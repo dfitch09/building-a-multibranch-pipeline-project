@@ -13,7 +13,8 @@ pipeline {
                     }
                         git branch: "$GIT_BRANCH",
                         credentialsId: 'GITHUB_TOKEN',
-                        url: 'https://github.ibm.com/FDA-BEST/case_mngt_ui.git'
+                        url: 'https://github.com/dfitch09/building-a-multibranch-pipeline-project'
+                        ////url: 'https://github.ibm.com/FDA-BEST/case_mngt_ui.git'
                     script {
                         GIT_COMMIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
                         sh "echo $APP"
