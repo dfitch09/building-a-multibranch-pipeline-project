@@ -12,7 +12,7 @@ pipeline {
                         cleanWs()
                     }
                         git branch: "$GIT_BRANCH",
-                        credentialsId: 'GITHUB_TOKEN',
+                        ////credentialsId: 'GITHUB_TOKEN',
                         url: 'https://github.com/dfitch09/building-a-multibranch-pipeline-project'
                         ////url: 'https://github.ibm.com/FDA-BEST/case_mngt_ui.git'
                     script {
