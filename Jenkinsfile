@@ -1,6 +1,8 @@
 pipeline {
     agent any
-    define APP = 'cm-ui'
+    parameters {
+        string(name: 'APP', defaultValue: 'cm-ui', description: 'App Name')
+    }
     stages {
         stage('Build') {
             steps {
