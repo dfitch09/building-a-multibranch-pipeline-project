@@ -50,8 +50,9 @@ pipeline {
                   --build-arg REACT_APP_KEYCLOAK_CR_ADMIN_GRP=$REACT_APP_KEYCLOAK_CR_ADMIN_GRP \
                   --build-arg REACT_APP_SUPERSET_PORT=$REACT_APP_SUPERSET_PORT """                  
                   }
-                  */
+                  
                 }
+                */
             }
             
             stage('Image Push') {
