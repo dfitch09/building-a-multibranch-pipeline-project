@@ -1,0 +1,85 @@
+pipeline {
+   agent any
+      stages {
+            stage('Clean, Pull, and Hash') {
+                steps {
+                    script {
+                        cleanWs()
+                    }
+                        git branch: "$BRANCH",
+                        credentialsId: 'GITHUB_TOKEN',
+                        url: 'https://github.ibm.com/FDA-BEST/case_mngt_ui.git'
+                    script {
+                        GIT_COMMIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
+                        sh "echo $GIT_COMMIT_HASH"
+                    }
+                }
+            }
+
+            stage('Sonarqube Code Analysis') {
+                 steps {
+                     script {
+                      def scannerHome = tool 'sonarqube';
+                      withSonarQubeEnv('sonarqube') {
+                      sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=$APP"
+                      }
+                     }
+                 }
+            }
+            
+            stage('Build') {
+                steps {
+                withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-role', vaultUrl: 'https://nonprod-vault.best-im.com'], vaultSecrets: [[path: '$BRANCH/cm-ui', secretValues: [[vaultKey: 'REACT_APP_NODE_SERVER'], [vaultKey: 'REACT_APP_CHART_REVIEW'], [vaultKey: 'REACT_APP_KEYCLOAK_URL'], [vaultKey: 'REACT_APP_KEYCLOAK_REALM'], [vaultKey: 'REACT_APP_KEYCLOAK_CLIENT'], [vaultKey: 'REACT_APP_KEYCLOAK_CR_ADMIN_GRP'], [vaultKey: 'REACT_APP_SUPERSET_PORT']]]]) {
+                sh """docker build -f $BUILD . -t $REGISTRY/$BRANCH/$APP:latest \
+                  --build-arg REACT_APP_NODE_SERVER=$REACT_APP_NODE_SERVER \
+                  --build-arg REACT_APP_CHART_REVIEW=$REACT_APP_CHART_REVIEW \
+                  --build-arg REACT_APP_KEYCLOAK_URL=$REACT_APP_KEYCLOAK_URL \
+                  --build-arg REACT_APP_KEYCLOAK_REALM=$REACT_APP_KEYCLOAK_REALM \
+                  --build-arg REACT_APP_KEYCLOAK_CLIENT=$REACT_APP_KEYCLOAK_CLIENT \
+                  --build-arg REACT_APP_KEYCLOAK_CR_ADMIN_GRP=$REACT_APP_KEYCLOAK_CR_ADMIN_GRP \
+                  --build-arg REACT_APP_SUPERSET_PORT=$REACT_APP_SUPERSET_PORT """
+                  }
+                }
+            }
+            
+            stage('Image Push') {
+                steps {
+                  sh "docker push $REGISTRY/$BRANCH/$APP:latest"
+                  sh "docker tag $REGISTRY/$BRANCH/$APP:latest $REGISTRY/$BRANCH/$APP:$GIT_COMMIT_HASH"
+                  sh "docker push $REGISTRY/$BRANCH/$APP:$GIT_COMMIT_HASH"
+                }
+            }
+            
+            stage('Build Cleanup') {
+                steps {
+                  sh "docker rmi $REGISTRY/$BRANCH/$APP:latest"
+                //   sh "docker rmi $REGISTRY/$BRANCH/$APP:$GIT_COMMIT_HASH"
+                  cleanWs()
+                }
+            }
+            
+            stage('Manual Git of Gitops AWS') {
+                steps {
+                    withCredentials([usernamePassword(credentialsId: 'GITOPS', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                      sh ('git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.ibm.com/FDA-BEST/gitops_aws.git')
+                        dir("./gitops_aws/apps/$APP/overlays/$BRANCH/") {
+                        sh "kustomize edit set image $REGISTRY/$BRANCH/$APP:$GIT_COMMIT_HASH"
+                        sh "git config --global user.email 'yunnwei.swei@ibm.com'"
+                        sh "git config --global user.name 'Yunnwei Swei'"
+                        sh "git commit -am 'Update $BRANCH $APP' --allow-empty"
+                        }
+                    }
+                }
+            }
+            stage('Commit to Gitops Repo') {
+                steps {
+                    dir("./gitops_aws/apps/$APP/overlays/$BRANCH") {
+                        withCredentials([usernamePassword(credentialsId: 'GITOPS', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                          sh ('git push --set-upstream https://$GIT_USERNAME:$GIT_PASSWORD@github.ibm.com/FDA-BEST/gitops_aws.git master')
+                        }
+                    }
+                }
+            }
+            
+        }
+}
