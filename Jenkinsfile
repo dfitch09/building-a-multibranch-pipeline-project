@@ -12,7 +12,7 @@ pipeline {
 	             script {
                         GIT_COMMIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
                         sh "echo $GIT_COMMIT_HASH"
-                        sh "echo $APP"
+                        sh "echo ${APP}"
                         sh "echo ${GIT_BRANCH}"
                     }
             }
