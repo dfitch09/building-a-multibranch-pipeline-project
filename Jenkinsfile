@@ -69,8 +69,8 @@ pipeline {
             stage('Build Cleanup') {
                 steps {
                   sh "echo 'Build Cleanup'"
-                  sh "echo ${params.REGISTRY}/$GIT_BRANCH/$APP:latest"
-                  ////sh "docker rmi ${params.REGISTRY}/$GIT_BRANCH/$APP:latest"
+                  sh "echo ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest"
+                  ////sh "docker rmi ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest"
                   cleanWs()
                 }
             }
@@ -83,11 +83,11 @@ pipeline {
                 steps {
                     withCredentials([usernamePassword(credentialsId: 'GITOPS', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                       sh ('git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.ibm.com/FDA-BEST/gitops_aws.git')
-                        dir("./gitops_aws/apps/$APP/overlays/$GIT_BRANCH/") {
-                        sh "kustomize edit set image ${params.REGISTRY}/$GIT_BRANCH/$APP:$GIT_COMMIT_HASH"
+                        dir("./gitops_aws/apps/${params.APP}/overlays/$GIT_BRANCH/") {
+                        sh "kustomize edit set image ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:$GIT_COMMIT_HASH"
                         sh "git config --global user.email 'yunnwei.swei@ibm.com'"
                         sh "git config --global user.name 'Yunnwei Swei'"
-                        sh "git commit -am 'Update $BRANCH $APP' --allow-empty"
+                        sh "git commit -am 'Update $BRANCH ${params.APP}' --allow-empty"
                         }
                     }
                 }
@@ -99,7 +99,7 @@ pipeline {
                 }
                 /*
                 steps {
-                    dir("./gitops_aws/apps/$APP/overlays/$BRANCH") {
+                    dir("./gitops_aws/apps/${params.APP}/overlays/$BRANCH") {
                         withCredentials([usernamePassword(credentialsId: 'GITOPS', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                           sh ('git push --set-upstream https://$GIT_USERNAME:$GIT_PASSWORD@github.ibm.com/FDA-BEST/gitops_aws.git master')
                         }
