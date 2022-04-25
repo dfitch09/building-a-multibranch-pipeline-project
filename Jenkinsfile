@@ -59,18 +59,18 @@ pipeline {
             stage('Image Push') {
                 steps {
                     sh "echo 'Image Push...'"
-                    sh "echo $REGISTRY/$GIT_BRANCH/$APP"
-                  ////sh "docker push $REGISTRY/$GIT_BRANCH/$APP:latest"
-                  ////sh "docker tag $REGISTRY/$GIT_BRANCH/$APP:latest $REGISTRY/$BRANCH/$APP:$GIT_COMMIT_HASH"
-                  ////sh "docker push $REGISTRY/$GIT_BRANCH/$APP:$GIT_COMMIT_HASH"
+                    sh "echo ${params.REGISTRY}/$GIT_BRANCH/$APP"
+                  ////sh "docker push ${params.REGISTRY}/$GIT_BRANCH/$APP:latest"
+                  ////sh "docker tag ${params.REGISTRY}/$GIT_BRANCH/$APP:latest $REGISTRY/$BRANCH/$APP:$GIT_COMMIT_HASH"
+                  ////sh "docker push ${params.REGISTRY}/$GIT_BRANCH/$APP:$GIT_COMMIT_HASH"
                 }
             }
             
             stage('Build Cleanup') {
                 steps {
                   sh "echo 'Build Cleanup'"
-                  sh "echo $REGISTRY/$GIT_BRANCH/$APP:latest"
-                  ////sh "docker rmi $REGISTRY/$GIT_BRANCH/$APP:latest"
+                  sh "echo ${params.REGISTRY}/$GIT_BRANCH/$APP:latest"
+                  ////sh "docker rmi ${params.REGISTRY}/$GIT_BRANCH/$APP:latest"
                   cleanWs()
                 }
             }
@@ -84,7 +84,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'GITOPS', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                       sh ('git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.ibm.com/FDA-BEST/gitops_aws.git')
                         dir("./gitops_aws/apps/$APP/overlays/$GIT_BRANCH/") {
-                        sh "kustomize edit set image $REGISTRY/$GIT_BRANCH/$APP:$GIT_COMMIT_HASH"
+                        sh "kustomize edit set image ${params.REGISTRY}/$GIT_BRANCH/$APP:$GIT_COMMIT_HASH"
                         sh "git config --global user.email 'yunnwei.swei@ibm.com'"
                         sh "git config --global user.name 'Yunnwei Swei'"
                         sh "git commit -am 'Update $BRANCH $APP' --allow-empty"
