@@ -17,7 +17,7 @@ pipeline {
                         ////url: 'https://github.ibm.com/FDA-BEST/case_mngt_ui.git'
                     script {
                         GIT_COMMIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
-                        sh "echo $APP"
+                        sh "echo ${params.APP}"
                         sh "echo $GIT_COMMIT_HASH"
                     }
                 }
@@ -28,7 +28,7 @@ pipeline {
                      script {
                       def scannerHome = tool 'sonarqube';
                       withSonarQubeEnv('sonarqube') {
-                      sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=$APP"
+                      sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${params.APP}"
                       }
                      }
                  }
