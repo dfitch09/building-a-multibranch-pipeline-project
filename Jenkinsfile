@@ -1,5 +1,6 @@
 pipeline {
     agent any
+    define APP = 'cm-ui'
     stages {
         stage('Build') {
             steps {
@@ -9,7 +10,7 @@ pipeline {
 	             script {
                         GIT_COMMIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
                         sh "echo $GIT_COMMIT_HASH"
-                        sh "echo 'cm-ui'"
+                        sh "echo $APP"
                         sh "echo ${GIT_BRANCH}"
                     }
             }
