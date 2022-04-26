@@ -2,7 +2,7 @@ pipeline {
    agent any
     parameters {
         string(name: 'APP', defaultValue: 'cm-ui', description: 'App Name')
-        string(name: 'registry', defaultValue: 'harbor.best-im.com', description: 'Harbor Registry URI')
+        string(name: 'REGISTRY', defaultValue: 'harbor.best-im.com', description: 'Harbor Registry URI')
         // NOT USED: string(name: 'build', defaultValue: 'Dockerfile', description: 'Docker Build File')
     }
       stages {
