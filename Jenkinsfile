@@ -42,7 +42,7 @@ pipeline {
                 }
 
                 /*
-                sh """docker build -f $GIT_BUILD . -t $REGISTRY/$GIT_BRANCH/${params.APP}:latest \
+                sh """docker build -f $GIT_BUILD . -t ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest \
                   --build-arg REACT_APP_NODE_SERVER=$REACT_APP_NODE_SERVER \
                   --build-arg REACT_APP_CHART_REVIEW=$REACT_APP_CHART_REVIEW \
                   --build-arg REACT_APP_KEYCLOAK_URL=$REACT_APP_KEYCLOAK_URL \
@@ -61,7 +61,7 @@ pipeline {
                     sh "echo 'Image Push...'"
                     sh "echo ${params.REGISTRY}/$GIT_BRANCH/${params.APP}"
                   ////sh "docker push ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest"
-                  ////sh "docker tag ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest $REGISTRY/$BRANCH/${params.APP}:$GIT_COMMIT_HASH"
+                  ////sh "docker tag ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest ${params.REGISTRY}/$BRANCH/${params.APP}:$GIT_COMMIT_HASH"
                   ////sh "docker push ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:$GIT_COMMIT_HASH"
                 }
             }
