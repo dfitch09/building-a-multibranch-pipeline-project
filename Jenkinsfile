@@ -2,7 +2,7 @@ pipeline {
    agent any
     parameters {
         string(name: 'APP', defaultValue: 'cm-ui', description: 'App Name')
-        string(name: 'registry', defaultValue: 'harbor.best-im.com', description: 'Harbor registry URI')
+        string(name: 'REGISTRY', defaultValue: 'harbor.best-im.com', description: 'Harbor REGISTRY URI')
         // NOT USED: string(name: 'build', defaultValue: 'Dockerfile', description: 'Docker Build File')
     }
       stages {
@@ -42,7 +42,7 @@ pipeline {
                 }
 
                 /*
-                sh """docker build -f $GIT_BUILD . -t ${params.registry}/$GIT_BRANCH/${params.APP}:latest \
+                sh """docker build -f $GIT_BUILD . -t ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest \
                   --build-arg REACT_APP_NODE_SERVER=$REACT_APP_NODE_SERVER \
                   --build-arg REACT_APP_CHART_REVIEW=$REACT_APP_CHART_REVIEW \
                   --build-arg REACT_APP_KEYCLOAK_URL=$REACT_APP_KEYCLOAK_URL \
@@ -59,18 +59,18 @@ pipeline {
             stage('Image Push') {
                 steps {
                     sh "echo 'Image Push...'"
-                    sh "echo ${params.registry}/$GIT_BRANCH/${params.APP}"
-                  ////sh "docker push ${params.registry}/$GIT_BRANCH/${params.APP}:latest"
-                  ////sh "docker tag ${params.registry}/$GIT_BRANCH/${params.APP}:latest ${params.registry}/$BRANCH/${params.APP}:$GIT_COMMIT_HASH"
-                  ////sh "docker push ${params.registry}/$GIT_BRANCH/${params.APP}:$GIT_COMMIT_HASH"
+                    sh "echo ${params.REGISTRY}/$GIT_BRANCH/${params.APP}"
+                  ////sh "docker push ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest"
+                  ////sh "docker tag ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest ${params.REGISTRY}/$BRANCH/${params.APP}:$GIT_COMMIT_HASH"
+                  ////sh "docker push ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:$GIT_COMMIT_HASH"
                 }
             }
             
             stage('Build Cleanup') {
                 steps {
                   sh "echo 'Build Cleanup'"
-                  sh "echo ${params.registry}/$GIT_BRANCH/${params.APP}:latest"
-                  ////sh "docker rmi ${params.registry}/$GIT_BRANCH/${params.APP}:latest"
+                  sh "echo ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest"
+                  ////sh "docker rmi ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:latest"
                   cleanWs()
                 }
             }
@@ -84,7 +84,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'GITOPS', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                       sh ('git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.ibm.com/FDA-BEST/gitops_aws.git')
                         dir("./gitops_aws/apps/${params.APP}/overlays/$GIT_BRANCH/") {
-                        sh "kustomize edit set image ${params.registry}/$GIT_BRANCH/${params.APP}:$GIT_COMMIT_HASH"
+                        sh "kustomize edit set image ${params.REGISTRY}/$GIT_BRANCH/${params.APP}:$GIT_COMMIT_HASH"
                         sh "git config --global user.email 'yunnwei.swei@ibm.com'"
                         sh "git config --global user.name 'Yunnwei Swei'"
                         sh "git commit -am 'Update $BRANCH ${params.APP}' --allow-empty"
